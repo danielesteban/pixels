@@ -1,0 +1,94 @@
+/* Common stuff */
+* {
+  box-sizing: border-box;
+}
+body {
+  padding: 0;
+  margin: 0;
+  background: #333;
+  color: #eee;
+  text-shadow: 0 1px 0 #000;
+  font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+  font-weight: 100;
+  font-size: 14px;
+  line-height: 23px;
+  vertical-align: baseline;
+  font-smoothing: antialiased;
+  text-size-adjust: 100%;
+  cursor: default;
+}
+label {
+  margin: 0 5px;
+}
+input[type="text"] {
+  display: block;
+  width: 100%;
+  padding: 2px 10px;
+  margin: 5px 0 10px;
+}
+input[type="number"] {
+  width: 40px;
+  padding: 2px 0;
+}
+button {
+  display: inline-block;
+  background: #1a1a1a;
+  margin: 0;
+  border: 0;
+  border-radius: 2px;
+  padding: 8px 16px;
+  text-align: center;
+  cursor: pointer;
+  outline: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* Connect stuff */
+container {
+  display: block;
+  padding: 30px 60px;
+}
+container form center {
+  padding-top: 15px;
+}
+header {
+  font-size: 90px;
+  line-height: 146px;
+  padding-bottom: 50px;
+  text-align: center;
+}
+
+/* Player stuff */
+canvas {
+  image-rendering: pixelated;
+  width: 100%;
+  margin-bottom: 5px;
+}
+ul {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 308px;
+}
+li {
+  display: block;
+  padding: 2px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+li:nth-child(odd) {
+  background: #666;
+}
+li.active {
+  cursor: default;
+  font-weight: 700;
+  color: #aea;
+}

@@ -1,5 +1,9 @@
 'use strict';
 
+const host = window.localStorage.getItem('host');
+const port = parseInt(window.localStorage.getItem('port'), 10);
+if(!host || !port) window.location.href = '../index.html';
+
 const canvas = window.document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const net = require('net');
@@ -17,13 +21,13 @@ const reload = () => {
 const send = (canvas, callback) => {
   const buffer = Buffer.from(canvas.toDataURL().substr(22), 'base64');
   const client = net.connect({
-    host: '192.168.1.38',
-    port: 8080
+    host,
+    port
   }, () => {
     client.write(Buffer.from([buffer.length & 0xFF, (buffer.length >> 8) & 0xFF]));
     client.write(buffer);
   });
-  client.on('end', () => callback());
+  client.on('close', () => callback());
 };
 
 const animate = () => {
@@ -49,9 +53,7 @@ const animate = () => {
   ctx.putImageData(imgData, 0, 0);
   ctx.fillStyle = `rgba(0, 0, 0, ${1.0 - brightness})`;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  send(canvas, () => {
-   window.setTimeout(animate, 0);
-  });
+  send(canvas, animate);
 };
 
 const form = window.document.getElementsByTagName('form')[0];

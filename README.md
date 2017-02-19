@@ -28,7 +28,7 @@ const client = net.connect({
 You should also wait for the server to close the connection before opening a new one. This is the way the server let's you know when the vertical sync (buffer swapping) has happened.
 
 ```js
-client.on('end', sendNextFrame);
+client.on('close', sendNextFrame);
 ```
 
 ## Client:
@@ -37,5 +37,3 @@ client.on('end', sendNextFrame);
 
 * Install app dependencies: `cd client && npm i`
 * Launch the desktop client: `cd client && npm start`
-
-You'll probably need to edit the host/port of your RPI server at the top of: [client/renderer.js](client/renderer.js)

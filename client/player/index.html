@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Pixels!</title>
+    <link rel="stylesheet" href="../css/screen.css" />
+  </head>
+  <body>
+    <canvas id="canvas" width="64" height="32"></canvas>
+    <form>
+      <center>
+        <label>
+          <input type="radio" name="type" value="webcam" />
+          webcam
+        </label>
+        <label>
+          <input type="radio" name="type" value="video" />
+          video
+        </label>
+        <label>
+          <input type="radio" name="type" value="gif" />
+          gif
+        </label>
+        <label>
+          <input type="checkbox" name="fit" />
+          fit
+        </label>
+        <label>
+          <input type="number" name="brightness" step="0.1" />
+          brightness
+        </label>
+      </center>
+      <div>
+        <input type="text" name="url" />
+      </div>
+    </form>
+    <ul></ul>
+  </body>
+  <script>
+    'use strict';
+    window.timeouts = require('electron').remote.require('./player/timeouts.js');
+    window.setTimeout = (callback, delay) => {
+      window.timeouts.set(callback, delay);
+    };
+    window.onunload = () => {
+      timeouts.reset();
+    };
+    require('./libgif.js');
+    require('./renderer.js');
+  </script>
+</html>

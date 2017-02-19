@@ -1,3 +1,5 @@
+'use strict';
+
 /* Run timeouts inside the background process */
 const ids = [];
 exports.set = (callback, delay) => {
