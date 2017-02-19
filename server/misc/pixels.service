@@ -2,8 +2,13 @@
 Description=pixels
 
 [Service]
+Type=forking
+Restart=always
 WorkingDirectory=/usr/src/pixels/server
 ExecStart=/usr/src/pixels/server/server
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=pixels
 
 [Install]
 WantedBy=multi-user.target
