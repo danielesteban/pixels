@@ -1,0 +1,9 @@
+[Unit]
+Description=pixels
+
+[Service]
+WorkingDirectory=/usr/src/pixels/server
+ExecStart=/usr/src/pixels/server/server
+
+[Install]
+WantedBy=multi-user.target

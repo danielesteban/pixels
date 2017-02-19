@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Pixels!</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        padding: 0;
+        margin: 0;
+        background: #333;
+        color: #eee;
+        text-shadow: 0 1px 0 #000;
+        font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+        font-weight: 100;
+        font-size: 14px;
+        line-height: 23px;
+        vertical-align: baseline;
+        font-smoothing: antialiased;
+        text-size-adjust: 100%;
+        cursor: default;
+      }
+      ul {
+        display: block;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        overflow-x: hidden;
+        overflow-y: auto;
+        height: 308px;
+      }
+      li {
+        display: block;
+        padding: 2px 10px;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      li:nth-child(odd) {
+        background: #666;
+      }
+      li.active {
+        cursor: default;
+        font-weight: 700;
+        color: #aea;
+      }
+      input[type="text"] {
+        display: block;
+        width: 100%;
+        padding: 2px 10px;
+        margin: 5px 0 10px;
+      }
+      input[type="number"] {
+        width: 40px;
+        padding: 2px 0;
+      }
+      label {
+        margin: 0 5px;
+      }
+      canvas {
+        image-rendering: pixelated;
+        width: 100%;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="64" height="32"></canvas>
+    <form>
+      <center>
+        <label>
+          <input type="radio" name="type" value="webcam" />
+          webcam
+        </label>
+        <label>
+          <input type="radio" name="type" value="video" />
+          video
+        </label>
+        <label>
+          <input type="radio" name="type" value="gif" />
+          gif
+        </label>
+        <label>
+          <input type="checkbox" name="fit" />
+          fit
+        </label>
+        <label>
+          <input type="number" name="brightness" step="0.1" />
+          brightness
+        </label>
+      </center>
+      <div>
+        <input type="text" name="url" />
+      </div>
+    </form>
+    <ul></ul>
+  </body>
+  <script>
+    window.timeouts = require('electron').remote.require('./timeouts.js');
+    window.setTimeout = (callback, delay) => {
+      window.timeouts.set(callback, delay);
+    };
+    window.onunload = () => {
+      timeouts.reset();
+    };
+    require('./libgif.js');
+    require('./renderer.js');
+  </script>
+</html>
