@@ -5,9 +5,9 @@
 body {
   padding: 0;
   margin: 0;
-  background: #333;
-  color: #eee;
-  text-shadow: 0 1px 0 #000;
+  background: #21252b;
+  color: #d7dae0;
+  text-shadow: 0 1px 0 #28251F;
   font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
   font-weight: 100;
   font-size: 14px;
@@ -17,33 +17,44 @@ body {
   text-size-adjust: 100%;
   cursor: default;
 }
-label {
-  margin: 0 5px;
-}
-input[type="text"] {
-  display: block;
-  width: 100%;
-  padding: 2px 10px;
-  margin: 5px 0 10px;
-}
-input[type="number"] {
-  width: 40px;
-  padding: 2px 0;
-}
-button {
-  display: inline-block;
-  background: #1a1a1a;
-  margin: 0;
-  border: 0;
-  border-radius: 2px;
-  padding: 8px 16px;
-  text-align: center;
-  cursor: pointer;
+label, input[type="text"], input[type="number"], button {
   outline: 0;
   color: inherit;
   font-family: inherit;
   font-size: inherit;
   font-weight: inherit;
+}
+label {
+  margin: 0 5px;
+}
+input[type="text"], input[type="number"] {
+  background: #1b1d23;
+}
+input[type="text"] {
+  display: block;
+  width: 100%;
+  padding: 2px 10px;
+  margin: 10px 0;
+}
+input[type="number"] {
+  width: 43px;
+  padding: 2px;
+  margin-right: 3px;
+}
+input[type="checkbox"], input[type="radio"] {
+  outline: 0;
+}
+button {
+  display: inline-block;
+  background: #1a1a1a;
+  background: linear-gradient(to bottom, #3a3f4b 0%, #353b45 100%);
+  margin: 0;
+  border: 0;
+  border: 1px solid #181a1f;
+  border-radius: 2px;
+  padding: 8px 32px;
+  text-align: center;
+  cursor: pointer;
 }
 
 /* Connect stuff */
@@ -51,20 +62,24 @@ container {
   display: block;
   padding: 30px 60px;
 }
-container form center {
+container input[type="text"] {
+  margin: 5px 0 10px;
+}
+container center {
   padding-top: 15px;
 }
 header {
   font-size: 90px;
   line-height: 146px;
-  padding-bottom: 50px;
+  padding-bottom: 46px;
   text-align: center;
 }
 
 /* Player stuff */
 canvas {
   image-rendering: pixelated;
-  width: 100%;
+  width: 480px;
+  height: 240px;
   margin-bottom: 5px;
 }
 ul {
@@ -74,21 +89,21 @@ ul {
   list-style: none;
   overflow-x: hidden;
   overflow-y: auto;
-  height: 308px;
+  height: 297px;
 }
 li {
   display: block;
-  padding: 2px 10px;
+  padding: 4px 10px;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 li:nth-child(odd) {
-  background: #666;
+  background: #2c323c;
 }
 li.active {
   cursor: default;
   font-weight: 700;
-  color: #aea;
+  color: #e2c08d;
 }
