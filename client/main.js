@@ -9,12 +9,12 @@ const url = require('url');
 
 let mainWindow;
 app.on('ready', () => {
-  mainWindow = new BrowserWindow({width: 480, height: 640, resizable: false})
+  mainWindow = new BrowserWindow({width: 480, height: 640, resizable: false, title: 'Pixels!'});
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
-  }))
+  }));
   mainWindow.on('closed', function () {
     mainWindow = null;
   });

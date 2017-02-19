@@ -1,12 +1,14 @@
 {
   "name": "pixels",
   "version": "1.0.0",
-  "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "package:darwin": "electron-packager . \"Pixels\" --platform=darwin --arch=x64 --app-bundle-id=\"com.gatunes.pixels\" --osx-sign",
+    "package:linux": "electron-packager . \"Pixels\" --platform=linux --arch=x64"
   },
   "devDependencies": {
-    "electron": "^1.4.15"
+    "electron": "^1.4.15",
+    "electron-packager": "^8.5.1"
   }
 }
