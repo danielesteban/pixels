@@ -7,7 +7,7 @@ if(!host || !port) window.location.href = '../index.html';
 const canvas = window.document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const net = require('net');
-let source = JSON.parse(window.localStorage.getItem('source'));
+let source = JSON.parse(window.localStorage.getItem('source') || '{"webcam": true}');
 let brightness = parseFloat(window.localStorage.getItem('brightness') || 0.3);
 let fit = !!(window.localStorage.getItem('fit') || false);
 let overlay = window.localStorage.getItem('overlay') || 'none';
@@ -17,17 +17,14 @@ let overlayColor = window.localStorage.getItem('overlayColor') || '#000000';
 const history = JSON.parse(window.localStorage.getItem('history') || '[]');
 ctx.imageSmoothingEnabled = false;
 
-const reload = () => {
-  window.timeouts.reset();
-  window.location.reload();
-};
-
+/* Clock helper */
 const clock = () => {
   const now = new Date();
   const trailingZero = n => ((n < 10 ? '0' : '') + n);
   return `${trailingZero(now.getHours())}:${trailingZero(now.getMinutes())}:${trailingZero(now.getSeconds())}`;
 };
 
+/* Sends a frame to the server */
 const send = (canvas, callback) => {
   const buffer = Buffer.from(canvas.toDataURL().substr(22), 'base64');
   const client = net.connect({
@@ -40,7 +37,13 @@ const send = (canvas, callback) => {
   client.on('close', () => callback());
 };
 
+/* Animation loop */
 const animate = () => {
+  if (!source) {
+    setImmediate(animate);
+    return;
+  }
+
   /* Calculate frame dimensions */
   const aspect = source.width / source.height;
   const diff = (canvas.width / canvas.height) < aspect;
@@ -55,7 +58,7 @@ const animate = () => {
 
   /* Render frame */
   canvas.width = canvas.width;
-  ctx.drawImage(source.image, 0, 0, source.width, source.height, canvas.width / 2 - width / 2, canvas.height / 2 - height / 2, width, height);
+  ctx.drawImage(source.frame, 0, 0, source.width, source.height, canvas.width / 2 - width / 2, canvas.height / 2 - height / 2, width, height);
 
   /* Render overlay (if any) */
   if (overlay !== 'none') {
@@ -86,6 +89,7 @@ const animate = () => {
   send(canvas, animate);
 };
 
+/* Input handling */
 const form = window.document.getElementsByTagName('form')[0];
 form.onsubmit = (e) => e.preventDefault();
 const inputs = window.document.getElementsByTagName('input');
@@ -96,8 +100,7 @@ for(let i=0; i<inputs.length; i++) {
       const type = e.target.value;
       form.url.disabled = type === 'webcam';
       form.url.value = '';
-      window.localStorage.removeItem('source');
-      if (type === 'webcam') reload();
+      if (type === 'webcam') load({webcam: true});
     };
   }
   if(input.name === 'fit') {
@@ -119,8 +122,7 @@ for(let i=0; i<inputs.length; i++) {
     input.onchange = (e) => {
       const source = {};
       source[form.type.value] = e.target.value;
-      window.localStorage.setItem('source', JSON.stringify(source));
-      reload();
+      load(source);
     };
   }
   if(input.name === 'overlay') {
@@ -155,79 +157,103 @@ for(let i=0; i<inputs.length; i++) {
   }
 }
 
-const video = window.document.createElement('video');
-video.onloadedmetadata = (e) => {
-  video.onloadedmetadata = null;
-  video.onplaying = () => {
-    video.onplaying = null;
-    source = {
-      image: video,
-      width: video.videoWidth,
-      height: video.videoHeight
-    };
-    animate();
-  };
-  video.play();
+/* History render helper */
+const renderHistory = (active) => {
+  const ul = window.document.getElementsByTagName('ul')[0];
+  while(ul.firstChild) ul.removeChild(ul.firstChild);
+  history.forEach((src) => {
+    const li = window.document.createElement('li');
+    const parsed = JSON.parse(src);
+    const file = (parsed.gif || parsed.video);
+    const slash = file.lastIndexOf('/');
+    li.innerText = ~slash ? file.substr(slash + 1) : file;
+    if(active === src) {
+      li.className = 'active';
+    } else {
+      li.onclick = () => {
+        load(JSON.parse(src));
+      };
+    }
+    ul.appendChild(li);
+  });
 };
 
-const strSource = JSON.stringify(source);
-if(source && !(~history.indexOf(strSource))) {
-  history.unshift(JSON.stringify(source));
-  window.localStorage.setItem('history', JSON.stringify(history));
-}
-const ul = window.document.getElementsByTagName('ul')[0];
-history.forEach((src) => {
-  const li = window.document.createElement('li');
-  const parsed = JSON.parse(src);
-  const file = (parsed.gif || parsed.video);
-  const slash = file.lastIndexOf('/');
-  li.innerText = ~slash ? file.substr(slash + 1) : file;
-  if(strSource === src) {
-    li.className = 'active';
-  } else {
-    li.onclick = () => {
-      window.localStorage.setItem('source', src);
-      reload();
-    };
+const load = (src) => {
+  if (source) {
+    if (source.unload) source.unload();
+    source = null;
   }
-  ul.appendChild(li);
-});
-
-if (source === null) {
-  navigator.mediaDevices.getUserMedia({
-    audio: false,
-    video: {
-      width: { min: 1280 },
-      height: { min: 720 }
-    }
-  })
-  .then(function(stream) {
-    video.srcObject = stream;
-  })
-  .catch(function(err) {
-    console.log(err.name + ": " + err.message);
-  });
-  form.type.value = 'webcam';
-  form.url.disabled = true;
-} else if(source.gif) {
-  const img = window.document.createElement('img');
-  img.src = source.gif;
-  const gif = new window.SuperGif({ gif: img });
-  gif.load(() => {
-    const player = gif.get_canvas();
-    source = {
-      image: player,
-      width: player.width,
-      height: player.height
+  const strSrc = JSON.stringify(src);
+  if (!src.webcam && !(~history.indexOf(strSrc))) {
+    history.unshift(strSrc);
+    window.localStorage.setItem('history', JSON.stringify(history));
+  }
+  window.localStorage.setItem('source', strSrc);
+  renderHistory(strSrc);
+  if (src.webcam || src.video) {
+    const video = window.document.createElement('video');
+    video.onloadedmetadata = (e) => {
+      video.onloadedmetadata = null;
+      video.onplaying = () => {
+        video.onplaying = null;
+        source = {
+          frame: video,
+          width: video.videoWidth,
+          height: video.videoHeight,
+          unload: () => {
+            video.pause();
+            video.src = '';
+          }
+        };
+      };
+      video.play();
     };
-    animate();
-  });
-  form.type.value = 'gif';
-  form.url.value = source.gif;
-} else if(source.video) {
-  video.src = source.video;
-  form.type.value = 'video';
-  form.url.value = source.video;
-} else {
-  console.log('Invalid source');
-}
+    if (src.webcam) {
+      navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          width: { min: 1280 },
+          height: { min: 720 }
+        }
+      })
+      .then((stream) => {
+        video.srcObject = stream;
+      })
+      .catch((err) => {
+        console.log(err.name + ": " + err.message);
+      });
+      form.type.value = 'webcam';
+      form.url.value = '';
+      form.url.disabled = true;
+    } else if(src.video) {
+      video.src = src.video;
+      form.type.value = 'video';
+      form.url.value = src.video;
+      form.url.disabled = false;
+    }
+  } else if(src.gif) {
+    const img = window.document.createElement('img');
+    img.src = src.gif;
+    const gif = new window.SuperGif({ gif: img });
+    gif.load(() => {
+      const player = gif.get_canvas();
+      source = {
+        frame: player,
+        width: player.width,
+        height: player.height,
+        unload: () => {
+          gif.pause();
+        }
+      };
+    });
+    form.type.value = 'gif';
+    form.url.value = src.gif;
+    form.url.disabled = false;
+  } else {
+    console.log('Invalid source');
+  }
+};
+
+/* Kickstart the player */
+load(source);
+animate();
