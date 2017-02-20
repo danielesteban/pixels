@@ -111,10 +111,10 @@ static void draw(RGBMatrix *matrix) {
       if (n < 0) break;
       received += n;
     }
-    close(client);
     if (received != size) {
       // printf("ERROR reading file from socket\n");
       delete[] buffer;
+      close(client);
       continue;
     }
     /* Decode & render image buffer */

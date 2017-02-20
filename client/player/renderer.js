@@ -12,7 +12,7 @@ let brightness = parseFloat(window.localStorage.getItem('brightness') || 0.3);
 let fit = !!(window.localStorage.getItem('fit') || false);
 let overlay = window.localStorage.getItem('overlay') || 'none';
 let overlayLabel = window.localStorage.getItem('overlayLabel') || '';
-let overlaySize = parseInt(window.localStorage.getItem('overlaySize') || 12, 10);
+let overlaySize = parseInt(window.localStorage.getItem('overlaySize') || 15, 10);
 let overlayColor = window.localStorage.getItem('overlayColor') || '#000000';
 const history = JSON.parse(window.localStorage.getItem('history') || '[]');
 ctx.imageSmoothingEnabled = false;
@@ -57,22 +57,23 @@ const animate = () => {
   }
 
   /* Render frame */
-  canvas.width = canvas.width;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(source.frame, 0, 0, source.width, source.height, canvas.width / 2 - width / 2, canvas.height / 2 - height / 2, width, height);
 
   /* Render overlay (if any) */
   if (overlay !== 'none') {
     const text = overlay === 'clock' ? clock() : overlayLabel;
-    const font = 'monospace';
-  	const size = overlaySize;
-  	const weight = 700;
-  	ctx.font = `${weight} ${size}px ${font}`;
-  	ctx.textAlign = 'center';
-  	const textWidth = ctx.measureText(text).width;
-  	const x = Math.round(canvas.width * 0.5);
-  	const y = Math.round(canvas.height * 0.5 + size * 0.3);
-  	ctx.fillStyle = overlayColor;
-  	ctx.fillText(text, x, y);
+    const font = "'Lucida Console'";
+    const size = overlaySize;
+    const weight = 700;
+    ctx.font = `${weight} ${size}px ${font}`;
+    ctx.textAlign = 'center';
+    const textWidth = ctx.measureText(text).width;
+    const x = Math.round(canvas.width * 0.5);
+    const y = Math.round(canvas.height * 0.5 + size * 0.35);
+    ctx.fillStyle = overlayColor;
+    ctx.fillText(text, x, y);
   }
 
   /* Post-processing */
