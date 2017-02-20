@@ -99,9 +99,13 @@ for(let i=0; i<inputs.length; i++) {
   if(input.name === 'type') {
     input.onchange = (e) => {
       const type = e.target.value;
-      form.url.disabled = type === 'webcam';
+      form.url.disabled = ~['webcam', 'screen'].indexOf(type);
       form.url.value = '';
-      if (type === 'webcam') load({webcam: true});
+      if (form.url.disabled) {
+        const source = {};
+        source[type] = true;
+        load(source);
+      }
     };
   }
   if(input.name === 'fit') {
@@ -185,13 +189,13 @@ const load = (src) => {
     source = null;
   }
   const strSrc = JSON.stringify(src);
-  if (!src.webcam && !(~history.indexOf(strSrc))) {
+  if (!src.webcam && !src.screen && !(~history.indexOf(strSrc))) {
     history.unshift(strSrc);
     window.localStorage.setItem('history', JSON.stringify(history));
   }
   window.localStorage.setItem('source', strSrc);
   renderHistory(strSrc);
-  if (src.webcam || src.video) {
+  if (src.webcam || src.screen || src.video) {
     const video = window.document.createElement('video');
     video.onloadedmetadata = (e) => {
       video.onloadedmetadata = null;
@@ -209,21 +213,34 @@ const load = (src) => {
       };
       video.play();
     };
-    if (src.webcam) {
-      navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: {
-          width: { min: 1280 },
-          height: { min: 720 }
-        }
-      })
-      .then((stream) => {
-        video.srcObject = stream;
-      })
-      .catch((err) => {
-        console.log(err.name + ": " + err.message);
-      });
-      form.type.value = 'webcam';
+    if (src.webcam || src.screen) {
+      const constraints = {
+        minWidth: 1280,
+        maxWidth: 1280,
+        minHeight: 720,
+        maxHeight: 720
+      };
+      const getMedia = () => {
+        navigator.webkitGetUserMedia({
+          audio: false,
+          video: {
+            mandatory: constraints
+          }
+        }, (stream) => {
+          video.srcObject = stream;
+        }, (err) => {
+          console.log(err.name + ": " + err.message);
+        });
+      };
+      if (src.webcam) getMedia();
+      else {
+        constraints.chromeMediaSource = 'desktop';
+        window.electron.desktopCapturer.getSources({types: ['screen']}, (error, sources) => {
+          constraints.chromeMediaSourceId = sources[0].id;
+          getMedia();
+        });
+      }
+      form.type.value = src.webcam ? 'webcam' : 'screen';
       form.url.value = '';
       form.url.disabled = true;
     } else if(src.video) {

@@ -46,7 +46,11 @@
         </left>
         <label>
           <input type="radio" name="type" value="webcam" />
-          webcam
+          camera
+        </label>
+        <label>
+          <input type="radio" name="type" value="screen" />
+          screen
         </label>
         <label>
           <input type="radio" name="type" value="video" />
@@ -62,14 +66,14 @@
         </label>
         <label>
           <input type="number" name="brightness" step="0.1" />
-          brightness
         </label>
       </center>
     </form>
   </body>
   <script>
     'use strict';
-    window.timeouts = require('electron').remote.require('./player/timeouts.js');
+    window.electron = require('electron');
+    window.timeouts = electron.remote.require('./player/timeouts.js');
     window.setTimeout = (callback, delay) => {
       window.timeouts.set(callback, delay);
     };

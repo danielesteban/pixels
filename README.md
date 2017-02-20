@@ -1,6 +1,6 @@
 # pixels
 
-> Led panel webcam/video/gif network player for the RPI
+> Led panel webcam/screencast/video/gif network player for the RPI
 
 ## Server:
 
