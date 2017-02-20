@@ -10,12 +10,22 @@ const net = require('net');
 let source = JSON.parse(window.localStorage.getItem('source'));
 let brightness = parseFloat(window.localStorage.getItem('brightness') || 0.3);
 let fit = !!(window.localStorage.getItem('fit') || false);
+let overlay = window.localStorage.getItem('overlay') || 'none';
+let overlayLabel = window.localStorage.getItem('overlayLabel') || '';
+let overlaySize = parseInt(window.localStorage.getItem('overlaySize') || 12, 10);
+let overlayColor = window.localStorage.getItem('overlayColor') || '#000000';
 const history = JSON.parse(window.localStorage.getItem('history') || '[]');
 ctx.imageSmoothingEnabled = false;
 
 const reload = () => {
   window.timeouts.reset();
   window.location.reload();
+};
+
+const clock = () => {
+  const now = new Date();
+  const trailingZero = n => ((n < 10 ? '0' : '') + n);
+  return `${trailingZero(now.getHours())}:${trailingZero(now.getMinutes())}:${trailingZero(now.getSeconds())}`;
 };
 
 const send = (canvas, callback) => {
@@ -31,6 +41,7 @@ const send = (canvas, callback) => {
 };
 
 const animate = () => {
+  /* Calculate frame dimensions */
   const aspect = source.width / source.height;
   const diff = (canvas.width / canvas.height) < aspect;
   let width, height;
@@ -41,8 +52,27 @@ const animate = () => {
     width = canvas.height * aspect;
     height = canvas.height;
   }
+
+  /* Render frame */
   canvas.width = canvas.width;
   ctx.drawImage(source.image, 0, 0, source.width, source.height, canvas.width / 2 - width / 2, canvas.height / 2 - height / 2, width, height);
+
+  /* Render overlay (if any) */
+  if (overlay !== 'none') {
+    const text = overlay === 'clock' ? clock() : overlayLabel;
+    const font = 'monospace';
+  	const size = overlaySize;
+  	const weight = 700;
+  	ctx.font = `${weight} ${size}px ${font}`;
+  	ctx.textAlign = 'center';
+  	const textWidth = ctx.measureText(text).width;
+  	const x = Math.round(canvas.width * 0.5);
+  	const y = Math.round(canvas.height * 0.5 + size * 0.3);
+  	ctx.fillStyle = overlayColor;
+  	ctx.fillText(text, x, y);
+  }
+
+  /* Post-processing */
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   for(let i=0; i<imgData.data.length; i+=4) {
     imgData.data[i] = imgData.data[i] * brightness;
@@ -61,10 +91,10 @@ form.onsubmit = (e) => e.preventDefault();
 const inputs = window.document.getElementsByTagName('input');
 for(let i=0; i<inputs.length; i++) {
   const input = inputs[i];
-  if(input.type === 'radio') {
+  if(input.name === 'type') {
     input.onchange = (e) => {
       const type = e.target.value;
-      form.url.style.display = (type !== 'webcam') ? 'block' : 'none';
+      form.url.disabled = type === 'webcam';
       form.url.value = '';
       window.localStorage.removeItem('source');
       if (type === 'webcam') reload();
@@ -78,6 +108,13 @@ for(let i=0; i<inputs.length; i++) {
       else window.localStorage.removeItem('fit');
     };
   }
+  if(input.name === 'brightness') {
+    input.value = brightness;
+    input.onchange = (e) => {
+      brightness = parseFloat(e.target.value);
+      window.localStorage.setItem('brightness', brightness);
+    };
+  }
   if(input.name === 'url') {
     input.onchange = (e) => {
       const source = {};
@@ -86,11 +123,34 @@ for(let i=0; i<inputs.length; i++) {
       reload();
     };
   }
-  if(input.name === 'brightness') {
-    input.value = brightness;
+  if(input.name === 'overlay') {
+    input.checked = (input.value === overlay);
     input.onchange = (e) => {
-      brightness = parseFloat(e.target.value);
-      window.localStorage.setItem('brightness', brightness);
+      overlay = e.target.value;
+      form.overlayLabel.disabled = overlay !== 'label';
+      window.localStorage.setItem('overlay', overlay);
+    };
+  }
+  if(input.name === 'overlayLabel') {
+    input.disabled = overlay !== 'label';
+    input.value = overlayLabel;
+    input.onchange = (e) => {
+      overlayLabel = e.target.value;
+      window.localStorage.setItem('overlayLabel', overlayLabel);
+    };
+  }
+  if(input.name === 'overlaySize') {
+    input.value = overlaySize;
+    input.onchange = (e) => {
+      overlaySize = e.target.value;
+      window.localStorage.setItem('overlaySize', overlaySize);
+    };
+  }
+  if(input.name === 'overlayColor') {
+    input.value = overlayColor;
+    input.onchange = (e) => {
+      overlayColor = e.target.value;
+      window.localStorage.setItem('overlayColor', overlayColor);
     };
   }
 }
@@ -148,7 +208,7 @@ if (source === null) {
     console.log(err.name + ": " + err.message);
   });
   form.type.value = 'webcam';
-  form.url.style.display = 'none';
+  form.url.disabled = true;
 } else if(source.gif) {
   const img = window.document.createElement('img');
   img.src = source.gif;

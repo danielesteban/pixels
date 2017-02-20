@@ -34,7 +34,11 @@ input[type="text"] {
   display: block;
   width: 100%;
   padding: 2px 10px;
-  margin: 10px 0;
+  margin: 0;
+}
+input[type="text"]:disabled {
+  background: #353b45;
+  color: #696f7a;
 }
 input[type="number"] {
   width: 43px;
@@ -56,6 +60,19 @@ button {
   text-align: center;
   cursor: pointer;
 }
+form center {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+form center left {
+  float: left;
+  display: inline-block;
+  padding: 2px 0 0 15px;
+  font-size: 80%;
+  text-transform: uppercase;
+  color: #6a717c;
+  width: 64px;
+}
 
 /* Connect stuff */
 container {
@@ -64,9 +81,6 @@ container {
 }
 container input[type="text"] {
   margin: 5px 0 10px;
-}
-container center {
-  padding-top: 15px;
 }
 header {
   font-size: 90px;
@@ -80,7 +94,7 @@ canvas {
   image-rendering: pixelated;
   width: 480px;
   height: 240px;
-  margin-bottom: 5px;
+  vertical-align: middle;
 }
 ul {
   display: block;
@@ -89,7 +103,8 @@ ul {
   list-style: none;
   overflow-x: hidden;
   overflow-y: auto;
-  height: 297px;
+  background: #282c34;
+  height: 218px;
 }
 li {
   display: block;

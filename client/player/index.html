@@ -9,6 +9,41 @@
     <canvas id="canvas" width="64" height="32"></canvas>
     <form>
       <center>
+        <left>
+          Overlay
+        </left>
+        <label>
+          <input type="radio" name="overlay" value="none" />
+          none
+        </label>
+        <label>
+          <input type="radio" name="overlay" value="clock" />
+          clock
+        </label>
+        <label>
+          <input type="radio" name="overlay" value="label" />
+          label
+        </label>
+        <label>
+          <input type="number" name="overlaySize" />
+          size
+        </label>
+        <label>
+          <input type="color" name="overlayColor" />
+          color
+        </label>
+      </center>
+      <div style="padding-bottom: 10px;">
+        <input type="text" name="overlayLabel" />
+      </div>
+      <ul></ul>
+      <div style="padding-top: 10px;">
+        <input type="text" name="url" />
+      </div>
+      <center>
+        <left>
+          Source
+        </left>
         <label>
           <input type="radio" name="type" value="webcam" />
           webcam
@@ -30,11 +65,7 @@
           brightness
         </label>
       </center>
-      <div>
-        <input type="text" name="url" />
-      </div>
     </form>
-    <ul></ul>
   </body>
   <script>
     'use strict';
